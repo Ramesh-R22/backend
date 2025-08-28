@@ -130,7 +130,7 @@ public class AuthController {
         if (userOpt.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
         String code = String.valueOf(new Random().nextInt(900000) + 100000); // 6-digit code
         resetCodes.put(req.getEmail(), code);
-        emailService.sendEmail(req.getEmail(), "Password Reset Code", "Your password reset code is: " + code);
+        // emailService.sendEmail(req.getEmail(), "Password Reset Code", "Your password reset code is: " + code);
         return ResponseEntity.ok("Reset code sent to email");
     }
 
