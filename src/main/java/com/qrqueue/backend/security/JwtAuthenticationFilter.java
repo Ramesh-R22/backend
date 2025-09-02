@@ -34,13 +34,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        if (HttpMethod.OPTIONS.matches(request.getMethod())) {
-            return true; // preflight
+        String method = request.getMethod();
+
+        // Preflight
+        if (HttpMethod.OPTIONS.matches(method)) {
+            return true;
         }
-        // Only skip JWT filter for public auth endpoints (not change-password)
+
+        // Public endpoints (add all public endpoints here)
         return path.equals("/api/auth/login")
             || path.equals("/api/auth/forgot-password")
-            || path.equals("/api/auth/reset-password");
+            || path.equals("/api/auth/reset-password")
+            || (HttpMethod.GET.matches(method) && (
+                path.equals("/counters/all")
+                || path.equals("/queues/all")
+                || path.matches("/queue/\\d+")
+                || path.matches("/queue/entry/\\d+")
+            ))
+            || (HttpMethod.POST.matches(method) && path.matches("/queue/join/\\d+"));
     }
 
     @Override
