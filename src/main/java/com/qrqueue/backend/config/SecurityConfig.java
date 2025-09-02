@@ -71,24 +71,18 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // stateless + CORS
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // authorize
                 .authorizeHttpRequests(auth -> auth
-                    // Preflight requests must be allowed or you’ll see 403 on CORS
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    // Allow WebSocket handshake endpoint
                     .requestMatchers("/ws-queue", "/ws-queue/**").permitAll()
-                    // Public auth endpoints except change-password
+                    // Only staff/admin can login, forgot/reset password
                     .requestMatchers("/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                     // Change password for admin only
                     .requestMatchers("/api/auth/admin/change-password").hasRole("ADMIN")
                     // Change password for staff (and admin)
                     .requestMatchers("/api/auth/staff/change-password").hasAnyRole("STAFF", "ADMIN")
-                    // Change password for customer (and admin)
-                    .requestMatchers("/api/auth/customer/change-password").hasAnyRole("CUSTOMER", "ADMIN")
                     // Admin endpoints
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     // Staff endpoints
@@ -104,15 +98,12 @@ public class SecurityConfig {
                     // everything else requires auth
                     .anyRequest().authenticated()
                 )
-                // Return 401 (not 403) when unauthenticated
                 .exceptionHandling(ex -> ex
                     .authenticationEntryPoint((req, res, e) -> res.sendError(401, "Unauthorized"))
                     .accessDeniedHandler((req, res, e) -> res.sendError(403, "Forbidden"))
                 )
-                // Use our DAO provider
                 .authenticationProvider(authenticationProvider());
 
-        // Add JWT filter before UsernamePasswordAuthenticationFilter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
