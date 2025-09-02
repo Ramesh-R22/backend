@@ -23,7 +23,6 @@ import com.qrqueue.backend.dto.ForgotPasswordRequest;
 import com.qrqueue.backend.dto.LoginRequest;
 import com.qrqueue.backend.dto.LoginResponse;
 import com.qrqueue.backend.dto.ResetPasswordRequest;
-import com.qrqueue.backend.dto.SignupRequest;
 import com.qrqueue.backend.model.User;
 import com.qrqueue.backend.repository.UserRepository;
 import com.qrqueue.backend.security.JwtUtil;
@@ -68,24 +67,6 @@ public class AuthController {
         return new LoginResponse(token, user.getRole().name(), user.getUsername());
     }
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already exists");
-        }
-        User newUser = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole())
-                .build();
-        userRepository.save(newUser);
-        return ResponseEntity.ok("User created successfully");
-    }
-
     // Change password for admin
     @PostMapping("/admin/change-password")
     public ResponseEntity<?> changePasswordAdmin(@RequestBody ChangePasswordRequest req) {
@@ -96,12 +77,6 @@ public class AuthController {
     @PostMapping("/staff/change-password")
     public ResponseEntity<?> changePasswordStaff(@RequestBody ChangePasswordRequest req) {
         return handleChangePasswordForRole("STAFF", req);
-    }
-
-        // Change password for customer
-    @PostMapping("/customer/change-password")
-    public ResponseEntity<?> changePasswordCustomer(@RequestBody ChangePasswordRequest req) {
-        return handleChangePasswordForRole("CUSTOMER", req);
     }
 
     private ResponseEntity<?> handleChangePasswordForRole(String requiredRole, ChangePasswordRequest req) {

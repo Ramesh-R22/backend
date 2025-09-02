@@ -11,8 +11,8 @@ public class QueueRequest {
 
     @NotNull(message = "Counter ID is required")
     private Long counterId;
-
-    // Constructors (optional, but useful)
+    
+    // Constructors
     public QueueRequest() {
     }
 

@@ -82,7 +82,7 @@ public class SecurityConfig {
                     // Allow WebSocket handshake endpoint
                     .requestMatchers("/ws-queue", "/ws-queue/**").permitAll()
                     // Public auth endpoints except change-password
-                    .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
+                    .requestMatchers("/api/auth/login", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                     // Change password for admin only
                     .requestMatchers("/api/auth/admin/change-password").hasRole("ADMIN")
                     // Change password for staff (and admin)
@@ -93,8 +93,6 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/**").hasRole("ADMIN")
                     // Staff endpoints
                     .requestMatchers("/api/staff/**").hasAnyRole("ADMIN", "STAFF")
-                    // Customer endpoints
-                    .requestMatchers("/api/customer/**").hasAnyRole("ADMIN", "STAFF", "CUSTOMER")
                     // Public GET for counters and queues
                     .requestMatchers(HttpMethod.GET, "/counters/all").permitAll()
                     .requestMatchers(HttpMethod.GET, "/queues/all").permitAll()
